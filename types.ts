@@ -23,3 +23,9 @@ export interface TTSState {
   isLoading: boolean;
   error: string | null;
 }
+
+export interface User {
+  id: string;
+  name: string;
+  createdAt: number;
+}

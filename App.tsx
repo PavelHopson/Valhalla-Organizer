@@ -1,19 +1,44 @@
-import React, { useState } from 'react';
-import { Tab } from './types';
+import React, { useState, useEffect } from 'react';
+import { Tab, User } from './types';
 import { ChatView } from './components/ChatView';
 import { ImageView } from './components/ImageView';
 import { TTSView } from './components/TTSView';
+import { OnboardingView } from './components/OnboardingView';
+import { getUser } from './services/userService';
 
 const App: React.FC = () => {
   const [activeTab, setActiveTab] = useState<Tab>('chat');
+  const [user, setUser] = useState<User | null>(null);
+  const [isInitialized, setIsInitialized] = useState(false);
+
+  useEffect(() => {
+    // Simulating startup check
+    const existingUser = getUser();
+    if (existingUser) {
+      setUser(existingUser);
+    }
+    setIsInitialized(true);
+  }, []);
+
+  const handleOnboardingComplete = (newUser: User) => {
+    setUser(newUser);
+  };
+
+  if (!isInitialized) {
+    return <div className="h-screen w-full bg-slate-900"></div>; // Splash placeholder
+  }
+
+  if (!user) {
+    return <OnboardingView onComplete={handleOnboardingComplete} />;
+  }
 
   return (
-    <div className="flex h-screen bg-slate-900 text-slate-100 font-sans selection:bg-blue-500/30">
+    <div className="flex h-screen bg-slate-900 text-slate-100 font-sans selection:bg-blue-500/30 animate-in fade-in duration-700">
       {/* Sidebar */}
       <div className="w-20 lg:w-64 bg-slate-950 border-r border-slate-800 flex flex-col justify-between transition-all duration-300">
         <div>
           <div className="p-6 flex items-center gap-3">
-             <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg shadow-lg flex-shrink-0"></div>
+             <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg shadow-lg flex-shrink-0 flex items-center justify-center font-bold text-white text-sm">V</div>
              <span className="text-xl font-bold tracking-tight hidden lg:block">Valhalla</span>
           </div>
           
@@ -57,13 +82,13 @@ const App: React.FC = () => {
         </div>
 
         <div className="p-4 border-t border-slate-800">
-           <div className="flex items-center gap-3 px-2">
-             <div className="w-8 h-8 rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center text-xs font-bold text-slate-400">
-               H
+           <div className="flex items-center gap-3 px-2 overflow-hidden">
+             <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-slate-700 to-slate-600 border border-slate-500 flex items-center justify-center flex-shrink-0 text-xs font-bold text-white shadow-inner">
+               {user.name.charAt(0).toUpperCase()}
              </div>
-             <div className="hidden lg:block">
-               <p className="text-sm font-medium text-slate-200">Hex (Admin)</p>
-               <p className="text-xs text-slate-500">Staff Engineer</p>
+             <div className="hidden lg:block min-w-0">
+               <p className="text-sm font-medium text-slate-200 truncate">{user.name}</p>
+               <p className="text-xs text-slate-500 truncate">Premium Member</p>
              </div>
            </div>
         </div>
